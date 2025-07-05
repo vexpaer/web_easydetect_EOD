@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>easydetect-EOD Health Assessment System</title>
+    <style>
+        /* Language switch button styles */
+        .lang-switch {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            padding: 8px 16px;
+            background: linear-gradient(to right, #9b59b6, #8e44ad);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+        }
+        
+        .lang-switch:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.25);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        th {
+            background: linear-gradient(to bottom, #3498db, #2980b9);
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        tr:hover {
+            background-color: #f1f7fd;
+            transition: background-color 0.3s;
+        }
+        
+        input, select {
+            width: 95%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        .btn {
+            padding: 14px 35px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        #diagnosis-btn {
+            background: linear-gradient(to right, #2ecc71, #27ae60);
+        }
+        
+        #diagnosis-btn:hover:not(:disabled) {
+            background: linear-gradient(to right, #27ae60, #219653);
+        }
+        
+        #prognosis-btn {
+            background: linear-gradient(to right, #3498db, #2980b9);
+        }
+        
+        #prognosis-btn:hover:not(:disabled) {
+            background: linear-gradient(to right, #2980b9, #1c6da8);
+        }
+        
+        #result {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 12px;
+            background-color: #f8f9fa;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            display: none;
+            border: 1px solid #eaeaea;
+        }
+        
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .result-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+        }
+        
+        .diagnosis-icon {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+        }
+        
+        .prognosis-icon {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+        
+        .result-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .result-content {
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+        
+        .diagnosis-content {
+            background: linear-gradient(to right, rgba(46, 204, 113, 0.1), rgba(39, 174, 96, 0.05));
+            border-left: 5px solid #2ecc71;
+        }
+        
+        .prognosis-content {
+            background: linear-gradient(to right, rgba(52, 152, 219, 0.1), rgba(41, 128, 185, 0.05));
+            border-left: 5px solid #3498db;
+        }
+        
+        .result-item {
+            margin: 18px 0;
+            font-size: 1.2rem;
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: #2c3e50;
+            display: inline-block;
+            min-width: 180px;
+        }
+        
+        .result-value {
+            font-weight: 600;
+        }
+        
+        .diagnosis-high {
+            color: #e74c3c;
+        }
+        
+        .diagnosis-low {
+            color: #2ecc71;
+        }
+        
+        .prognosis-poor {
+            color: #e74c3c;
+        }
+        
+        .prognosis-good {
+            color: #2ecc71;
+        }
+        
+        .threshold-info {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+            font-size: 1rem;
+            border: 1px solid #eaeaea;
+        }
+        
+        #shap-plot {
+            margin-top: 30px;
+            text-align: center;
+            padding: 20px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            display: none;
+            border: 1px solid #eaeaea;
+        }
+        
+        #shap-image {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .feature-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 1.05rem;
+            color: #2c3e50;
+        }
+        
+        .feature-description {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-top: 3px;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 0;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(52, 152, 219, 0.2);
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .result-image {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .info-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9f2f8 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 30px;
+            border: 1px solid #eaeaea;
+        }
+        
+        .info-section h3 {
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .info-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .info-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .info-box h4 {
+            margin-top: 0;
+            color: #3498db;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-top: 40px;
+            border-top: 1px solid #eaeaea;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 15px;
+            }
+            
+            .lang-switch {
+                top: 15px;
+                right: 15px;
+                padding: 6px 12px;
+            }
+            
+            .btn-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .info-content {
+                grid-template-columns: 1fr;
+            }
+            
+            table {
+                font-size: 0.9rem;
+            }
+            
+            th, td {
+                padding: 12px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Language switch button -->
+        <button class="lang-switch" onclick="switchLanguage()">中文</button>
+        
+        <header>
+            <h1>easydetect-EOD Health Assessment System</h1>
+            <div class="subtitle">Machine Learning-based Health Risk Diagnosis and Prognosis Prediction</div>
+        </header>
+        
+        <table id="input-table">
+            <tr>
+                <th width="30%">Feature Name</th>
+                <th width="25%">Data Range</th>
+                <th width="45%">Input Value (Click to modify example)</th>
+            </tr>
+            <!-- Rows will be added dynamically by JS -->
+        </table>
+        
+        <div class="btn-container">
+            <button id="diagnosis-btn" class="btn" onclick="submitData('diagnosis')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"></path>
+                    <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"></polygon>
+                </svg>
+                Diagnosis
+            </button>
+            <button id="prognosis-btn" class="btn" onclick="submitData('prognosis')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                Prognosis
+            </button>
+        </div>
+        
+        <div id="result">
+            <div class="result-header">
+                <div class="result-icon diagnosis-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"></path>
+                        <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"></polygon>
+                    </svg>
+                </div>
+                <h2 class="result-title">Prediction Result</h2>
+            </div>
+            
+            <div id="diagnosis-result" class="result-content diagnosis-content" style="display:none;">
+                <div class="loading">
+                    <div class="spinner"></div>
+                </div>
+                <!-- Result image will be dynamically added -->
+            </div>
+            
+            <div id="prognosis-result" class="result-content prognosis-content" style="display:none;">
+                <div class="loading">
+                    <div class="spinner"></div>
+                </div>
+                <!-- Result image will be dynamically added -->
+            </div>
+            
+            <div id="shap-plot">
+                <h3>Feature Impact Analysis</h3>
+                <img id="shap-image" />
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <h3>System Information</h3>
+            <div class="info-content">
+                <div class="info-box">
+                    <h4>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        Diagnosis Model
+                    </h4>
+                    <p>The diagnosis model assesses an individual's risk of developing diseases. It uses CatBoost algorithm and 27 health-related features for prediction.</p>
+                    <p><strong>Risk Threshold: 0.53</strong> - Values above indicate high risk, below indicate low risk.</p>
+                </div>
+                
+                <div class="info-box">
+                    <h4>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        Prognosis Model
+                    </h4>
+                    <p>The prognosis model predicts possible outcomes of disease progression. It uses Random Forest algorithm and 27 health-related features for prediction.</p>
+                    <p><strong>Risk Threshold: -12.03</strong> - Values above indicate poor prognosis, below indicate good prognosis.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2025 Vexpaer</p>
+    </footer>
+    
+    <script>
+        // Feature names (English)
+        const featureNames = [
+            {en: 'age', desc: 'Current age of the patient', binary: false},
+            {en: 'educl', desc: '1=Primary, 2=Middle-High, 3=Above High School', binary: false},
+            {en: 'gender', desc: '0=Female, 1=Male', binary: true},
+            {en: 'hibpe', desc: '0=No, 1=Yes', binary: true},
+            {en: 'stroke', desc: '0=No, 1=Yes', binary: true},
+            {en: 'diabe', desc: '0=No, 1=Yes', binary: true},
+            {en: 'cancre', desc: '0=No, 1=Yes', binary: true},
+            {en: 'lunge', desc: '0=No, 1=Yes', binary: true},
+            {en: 'hearte', desc: '0=No, 1=Yes', binary: true},
+            {en: 'arthre', desc: '0=No, 1=Yes', binary: true},
+            {en: 'psyche', desc: '0=Normal, 1=Issues present', binary: true},
+            {en: 'height', desc: 'Height in meters, e.g., 1.75', binary: false},
+            {en: 'weight', desc: 'Weight in kilograms, e.g., 70.5', binary: false},
+            {en: 'smokev', desc: '0=Never, 1=Past smoker', binary: true},
+            {en: 'smoken', desc: '0=No, 1=Current smoker', binary: true},
+            {en: 'drinkev', desc: '0=No, 1=Drinks alcohol', binary: true},
+            {en: 'bmi', desc: 'Body Mass Index: weight(kg)/height(m)²', binary: false},
+            {en: 'family_size', desc: 'Number of family members living together', binary: false},
+            {en: 'work', desc: '0=Unemployed, 1=Employed', binary: true},
+            {en: 'hearaid', desc: '0=No, 1=Uses hearing aid', binary: true},
+            {en: 'rural', desc: '0=Urban, 1=Rural', binary: true},
+            {en: 'lgrip', desc: 'Left hand grip strength (kg)', binary: false},
+            {en: 'rgrip', desc: 'Right hand grip strength (kg)', binary: false},
+            {en: 'vgactx', desc: 'Vigorous activities per week (0-7)', binary: false},
+            {en: 'pain', desc: '0=No pain, 1=Pain present', binary: true},
+            {en: 'marry', desc: '0=Not married, 1=Married', binary: true}
+        ];
+        
+        // Data ranges
+        const dataRanges = [
+            '<65', '1,2,3', '0,1', '0,1', '0,1', '0,1', '0,1',
+            '0,1', '0,1', '0,1', '0,1', 'Positive number', 'Positive number', 
+            '0,1', '0,1', '0,1', 'Positive number', 'Positive integer', 
+            '0,1', '0,1', '0,1', 'Positive number', 'Positive number', 'Integer 0-7', '0,1', '0,1'
+        ];
+        
+        // Example data
+        const exampleData = [
+            '51', '1', '0', '0', '0', '0', '0',
+            '0', '0', '0', '0', '1.62', '55', 
+            '1', '0', '1', '20.96', '2', 
+            '1', '0', '0', '28', '31', '2', '1', '1'
+        ];
+        
+        // Initialize table
+        function initTable() {
+            const table = document.getElementById('input-table');
+            
+            for (let i = 0; i < featureNames.length; i++) {
+                const row = table.insertRow();
+                
+                // Feature name column
+                const nameCell = row.insertCell();
+                nameCell.innerHTML = `
+                    <div class="feature-title">${featureNames[i].en}</div>
+                    <div class="feature-description">${featureNames[i].desc}</div>
+                `;
+                
+                // Data range column
+                const rangeCell = row.insertCell();
+                rangeCell.textContent = dataRanges[i];
+                
+                // Input column
+                const inputCell = row.insertCell();
+                
+                // Special handling for education level (educl)
+                if (featureNames[i].en === 'educl') {
+                    // Create dropdown with three options
+                    const select = document.createElement('select');
+                    select.dataset.index = i;
+                    
+                    // Add options
+                    const option1 = document.createElement('option');
+                    option1.value = '1';
+                    option1.textContent = 'Primary';
+                    select.appendChild(option1);
+                    
+                    const option2 = document.createElement('option');
+                    option2.value = '2';
+                    option2.textContent = 'Middle-High';
+                    select.appendChild(option2);
+                    
+                    const option3 = document.createElement('option');
+                    option3.value = '3';
+                    option3.textContent = 'Above High School';
+                    select.appendChild(option3);
+                    
+                    // Set default value
+                    select.value = exampleData[i];
+                    inputCell.appendChild(select);
+                } 
+                // Special handling for gender
+                else if (featureNames[i].en === 'gender') {
+                    // Create gender dropdown
+                    const select = document.createElement('select');
+                    select.dataset.index = i;
+                    
+                    // Add options
+                    const option0 = document.createElement('option');
+                    option0.value = '0';
+                    option0.textContent = 'Female';
+                    select.appendChild(option0);
+                    
+                    const option1 = document.createElement('option');
+                    option1.value = '1';
+                    option1.textContent = 'Male';
+                    select.appendChild(option1);
+                    
+                    // Set default value
+                    select.value = exampleData[i];
+                    inputCell.appendChild(select);
+                } 
+                // Other binary features
+                else if (featureNames[i].binary) {
+                    // Create dropdown
+                    const select = document.createElement('select');
+                    select.dataset.index = i;
+                    
+                    // Add options
+                    const option0 = document.createElement('option');
+                    option0.value = '0';
+                    option0.textContent = 'No';
+                    select.appendChild(option0);
+                    
+                    const option1 = document.createElement('option');
+                    option1.value = '1';
+                    option1.textContent = 'Yes';
+                    select.appendChild(option1);
+                    
+                    // Set default value
+                    select.value = exampleData[i];
+                    inputCell.appendChild(select);
+                } 
+                // Numeric features
+                else {
+                    // Create input field
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = exampleData[i];
+                    input.dataset.index = i;
+                    inputCell.appendChild(input);
+                }
+            }
+        }
+        
+        // Switch to Chinese page
+        function switchLanguage() {
+            window.location.href = "index.html";
+        }
+        
+        // Submit data to backend
+        function submitData(modelType) {
+            // Disable buttons to prevent duplicate submissions
+            document.getElementById('diagnosis-btn').disabled = true;
+            document.getElementById('prognosis-btn').disabled = true;
+            
+            // Collect all input values
+            const inputs = document.querySelectorAll('#input-table input, #input-table select');
+            const values = [];
+            
+            inputs.forEach(input => {
+                values.push(input.value);
+            });
+            
+            // Show loading status
+            const resultDiv = document.getElementById('result');
+            const diagnosisEl = document.getElementById('diagnosis-result');
+            const prognosisEl = document.getElementById('prognosis-result');
+            const shapPlot = document.getElementById('shap-plot');
+            
+            diagnosisEl.style.display = modelType === 'diagnosis' ? 'block' : 'none';
+            prognosisEl.style.display = modelType === 'prognosis' ? 'block' : 'none';
+            shapPlot.style.display = 'none';
+            
+            // Clear previous content
+            diagnosisEl.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            prognosisEl.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            
+            // Show result area
+            resultDiv.style.display = 'block';
+            
+            // Send data to backend with model type
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `data=${encodeURIComponent(values.join(','))}&model_type=${modelType}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Enable buttons
+                document.getElementById('diagnosis-btn').disabled = false;
+                document.getElementById('prognosis-btn').disabled = false;
+                
+                if (data.error) {
+                    if (modelType === 'diagnosis') {
+                        diagnosisEl.innerHTML = `<div class="result-item"><span class="warning">Error: ${data.error}</span></div>`;
+                    } else {
+                        prognosisEl.innerHTML = `<div class="result-item"><span class="warning">Error: ${data.error}</span></div>`;
+                    }
+                } else {
+                    if (modelType === 'diagnosis') {
+                        const riskClass = data.diagnosis_label === "高" ? "diagnosis-high" : "diagnosis-low";
+                        const riskLabel = data.diagnosis_label === "高" ? "High" : "Low";
+                        
+                        diagnosisEl.innerHTML = `
+                            <div class="result-item">
+                                <span class="result-label">Diagnosis Risk:</span>
+                                <span class="result-value ${riskClass}">${riskLabel}</span>
+                                <span>(${data.diagnosis_score})</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Model Score:</span>
+                                <span>${data.diagnosis_score}</span>
+                            </div>
+                            <div class="threshold-info">
+                                <strong>Diagnosis Threshold: 0.53</strong> - Above indicates high risk, below indicates low risk
+                            </div>
+                        `;
+                        
+                        // Show result image
+                        if (data.result_image) {
+                            const imgEl = document.createElement('img');
+                            imgEl.className = 'result-image';
+                            imgEl.src = 'data:image/png;base64,' + data.result_image;
+                            imgEl.alt = 'Diagnosis result image';
+                            diagnosisEl.appendChild(imgEl);
+                        }
+                        
+                        prognosisEl.style.display = 'none';
+                    } else {
+                        const progClass = data.prognosis_label === "较差" ? "prognosis-poor" : "prognosis-good";
+                        const progLabel = data.prognosis_label === "较差" ? "Poor" : "Good";
+                        
+                        prognosisEl.innerHTML = `
+                            <div class="result-item">
+                                <span class="result-label">Prognosis Status:</span>
+                                <span class="result-value ${progClass}">${progLabel}</span>
+                                <span>(${data.prognosis_score})</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Model Score:</span>
+                                <span>${data.prognosis_score}</span>
+                            </div>
+                            <div class="threshold-info">
+                                <strong>Prognosis Threshold: -12.03</strong> - Above indicates poor prognosis, below indicates good prognosis
+                            </div>
+                        `;
+                        
+                        // Show result image
+                        if (data.result_image) {
+                            const imgEl = document.createElement('img');
+                            imgEl.className = 'result-image';
+                            imgEl.src = 'data:image/png;base64,' + data.result_image;
+                            imgEl.alt = 'Prognosis result image';
+                            prognosisEl.appendChild(imgEl);
+                        }
+                        
+                        diagnosisEl.style.display = 'none';
+                    }
+                    
+                    // Show SHAP plot
+                    if (data.shap_image) {
+                        const shapImg = document.getElementById('shap-image');
+                        shapImg.src = 'data:image/png;base64,' + data.shap_image;
+                        shapPlot.style.display = 'block';
+                    }
+                }
+                
+                // Scroll to result area
+                resultDiv.scrollIntoView({ behavior: 'smooth' });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Enable buttons
+                document.getElementById('diagnosis-btn').disabled = false;
+                document.getElementById('prognosis-btn').disabled = false;
+                
+                const errorMsg = error.message || "Request failed";
+                if (modelType === 'diagnosis') {
+                    diagnosisEl.innerHTML = `<div class="result-item"><span class="warning">Request failed: ${errorMsg}</span></div>`;
+                } else {
+                    prognosisEl.innerHTML = `<div class="result-item"><span class="warning">Request failed: ${errorMsg}</span></div>`;
+                }
+            });
+        }
+        
+        // Initialize table when page loads
+        window.onload = initTable;
+    </script>
+</body>
+</html>

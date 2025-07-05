@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>easydetect-EOD 健康评估系统</title>
+    <style>
+        /* 新增语言切换按钮样式 */
+        .lang-switch {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            padding: 8px 16px;
+            background: linear-gradient(to right, #9b59b6, #8e44ad);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+        }
+        
+        .lang-switch:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.25);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        th {
+            background: linear-gradient(to bottom, #3498db, #2980b9);
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        tr:hover {
+            background-color: #f1f7fd;
+            transition: background-color 0.3s;
+        }
+        
+        input, select {
+            width: 95%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        .btn {
+            padding: 14px 35px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        #diagnosis-btn {
+            background: linear-gradient(to right, #2ecc71, #27ae60);
+        }
+        
+        #diagnosis-btn:hover:not(:disabled) {
+            background: linear-gradient(to right, #27ae60, #219653);
+        }
+        
+        #prognosis-btn {
+            background: linear-gradient(to right, #3498db, #2980b9);
+        }
+        
+        #prognosis-btn:hover:not(:disabled) {
+            background: linear-gradient(to right, #2980b9, #1c6da8);
+        }
+        
+        #result {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 12px;
+            background-color: #f8f9fa;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            display: none;
+            border: 1px solid #eaeaea;
+        }
+        
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .result-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+        }
+        
+        .diagnosis-icon {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+        }
+        
+        .prognosis-icon {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+        
+        .result-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .result-content {
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+        
+        .diagnosis-content {
+            background: linear-gradient(to right, rgba(46, 204, 113, 0.1), rgba(39, 174, 96, 0.05));
+            border-left: 5px solid #2ecc71;
+        }
+        
+        .prognosis-content {
+            background: linear-gradient(to right, rgba(52, 152, 219, 0.1), rgba(41, 128, 185, 0.05));
+            border-left: 5px solid #3498db;
+        }
+        
+        .result-item {
+            margin: 18px 0;
+            font-size: 1.2rem;
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: #2c3e50;
+            display: inline-block;
+            min-width: 150px;
+        }
+        
+        .result-value {
+            font-weight: 600;
+        }
+        
+        .diagnosis-high {
+            color: #e74c3c;
+        }
+        
+        .diagnosis-low {
+            color: #2ecc71;
+        }
+        
+        .prognosis-poor {
+            color: #e74c3c;
+        }
+        
+        .prognosis-good {
+            color: #2ecc71;
+        }
+        
+        .threshold-info {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+            font-size: 1rem;
+            border: 1px solid #eaeaea;
+        }
+        
+        #shap-plot {
+            margin-top: 30px;
+            text-align: center;
+            padding: 20px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            display: none;
+            border: 1px solid #eaeaea;
+        }
+        
+        #shap-image {
+            max-width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .feature-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 1.05rem;
+            color: #2c3e50;
+        }
+        
+        .feature-description {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-top: 3px;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 0;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(52, 152, 219, 0.2);
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .result-image {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .info-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9f2f8 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 30px;
+            border: 1px solid #eaeaea;
+        }
+        
+        .info-section h3 {
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .info-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .info-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .info-box h4 {
+            margin-top: 0;
+            color: #3498db;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-top: 40px;
+            border-top: 1px solid #eaeaea;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 15px;
+            }
+            
+            .lang-switch {
+                top: 15px;
+                right: 15px;
+                padding: 6px 12px;
+            }
+            
+            .btn-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .info-content {
+                grid-template-columns: 1fr;
+            }
+            
+            table {
+                font-size: 0.9rem;
+            }
+            
+            th, td {
+                padding: 12px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 新增语言切换按钮 -->
+        <button class="lang-switch" onclick="switchLanguage()">English</button>
+        
+        <header>
+            <h1>easydetect-EOD 健康评估系统</h1>
+            <div class="subtitle">基于机器学习的健康风险诊断与预后预测系统</div>
+        </header>
+        
+        <table id="input-table">
+            <tr>
+                <th width="30%">特征名称</th>
+                <th width="25%">数据范围</th>
+                <th width="45%">输入值(可点击修改示例)</th>
+            </tr>
+            <!-- 行将通过JS动态添加 -->
+        </table>
+        
+        <div class="btn-container">
+            <button id="diagnosis-btn" class="btn" onclick="submitData('diagnosis')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"></path>
+                    <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"></polygon>
+                </svg>
+                诊 断
+            </button>
+            <button id="prognosis-btn" class="btn" onclick="submitData('prognosis')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                预 后
+            </button>
+        </div>
+        
+        <div id="result">
+            <div class="result-header">
+                <div class="result-icon diagnosis-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"></path>
+                        <polygon points="18 2 22 6 12 16 8 16 8 12 18 2"></polygon>
+                    </svg>
+                </div>
+                <h2 class="result-title">预测结果</h2>
+            </div>
+            
+            <div id="diagnosis-result" class="result-content diagnosis-content" style="display:none;">
+                <div class="loading">
+                    <div class="spinner"></div>
+                </div>
+                <!-- 结果图片将动态添加 -->
+            </div>
+            
+            <div id="prognosis-result" class="result-content prognosis-content" style="display:none;">
+                <div class="loading">
+                    <div class="spinner"></div>
+                </div>
+                <!-- 结果图片将动态添加 -->
+            </div>
+            
+            <div id="shap-plot">
+                <h3>特征影响分析</h3>
+                <img id="shap-image" />
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <h3>系统说明</h3>
+            <div class="info-content">
+                <div class="info-box">
+                    <h4>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        诊断模型说明
+                    </h4>
+                    <p>诊断模型用于评估个体患病的风险水平。模型基于CatBoost算法训练，使用27个健康相关特征进行预测。</p>
+                    <p><strong>风险阈值：0.53</strong> - 高于此值表示高风险，低于此值表示低风险。</p>
+                </div>
+                
+                <div class="info-box">
+                    <h4>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        预后模型说明
+                    </h4>
+                    <p>预后模型用于预测疾病发展的可能结果。模型基于随机森林算法训练，使用27个健康相关特征进行预测。</p>
+                    <p><strong>风险阈值：-12.03</strong> - 高于此值表示预后较差，低于此值表示预后较好。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2025 Vexpaer</p>
+    </footer>
+    
+    <script>
+        // 特征名称（英文+中文）
+        const featureNames = [
+            {en: 'age', zh: '年龄', desc: '患者当前年龄', binary: false},
+            {en: 'educl', zh: '教育水平', desc: '1=小学, 2=初中-高中, 3=高中以上', binary: false},
+            {en: 'gender', zh: '性别', desc: '0=女性, 1=男性', binary: true},
+            {en: 'hibpe', zh: '高血压', desc: '0=无, 1=有', binary: true},
+            {en: 'stroke', zh: '中风史', desc: '0=无, 1=有', binary: true},
+            {en: 'diabe', zh: '糖尿病', desc: '0=无, 1=有', binary: true},
+            {en: 'cancre', zh: '癌症史', desc: '0=无, 1=有', binary: true},
+            {en: 'lunge', zh: '肺部疾病', desc: '0=无, 1=有', binary: true},
+            {en: 'hearte', zh: '心脏病', desc: '0=无, 1=有', binary: true},
+            {en: 'arthre', zh: '关节炎', desc: '0=无, 1=有', binary: true},
+            {en: 'psyche', zh: '精神健康', desc: '0=正常, 1=存在问题', binary: true},
+            {en: 'height', zh: '身高(米)', desc: '例如：1.75', binary: false},
+            {en: 'weight', zh: '体重(公斤)', desc: '例如：70.5', binary: false},
+            {en: 'smokev', zh: '曾经吸烟', desc: '0=否, 1=是', binary: true},
+            {en: 'smoken', zh: '现在吸烟', desc: '0=否, 1=是', binary: true},
+            {en: 'drinkev', zh: '饮酒状况', desc: '0=不饮酒, 1=饮酒', binary: true},
+            {en: 'bmi', zh: '身体质量指数', desc: '体重(kg)/身高(m)²', binary: false},
+            {en: 'family_size', zh: '家庭人数', desc: '共同居住的家庭成员数量', binary: false},
+            {en: 'work', zh: '工作情况', desc: '0=无工作, 1=有工作', binary: true},
+            {en: 'hearaid', zh: '使用助听器', desc: '0=否, 1=是', binary: true},
+            {en: 'rural', zh: '农村居住', desc: '0=城市, 1=农村', binary: true},
+            {en: 'lgrip', zh: '左手握力(kg)', desc: '左手最大握力', binary: false},
+            {en: 'rgrip', zh: '右手握力(kg)', desc: '右手最大握力', binary: false},
+            {en: 'vgactx', zh: '剧烈活动次数', desc: '每周剧烈活动次数(0-7)', binary: false},
+            {en: 'pain', zh: '身体疼痛', desc: '0=无疼痛, 1=有疼痛', binary: true},
+            {en: 'marry', zh: '婚姻状况', desc: '0=未婚, 1=已婚', binary: true}
+        ];
+        
+        // 数据范围
+        const dataRanges = [
+            '<65', '1,2,3', '0,1', '0,1', '0,1', '0,1', '0,1',
+            '0,1', '0,1', '0,1', '0,1', '正数', '正数', 
+            '0,1', '0,1', '0,1', '正数', '正整数', 
+            '0,1', '0,1', '0,1', '正数', '正数', '0-7整数', '0,1', '0,1'
+        ];
+        
+        // 示例数据
+        const exampleData = [
+            '51', '1', '0', '0', '0', '0', '0',
+            '0', '0', '0', '0', '1.62', '55', 
+            '1', '0', '1', '20.96', '2', 
+            '1', '0', '0', '28', '31', '2', '1', '1'
+        ];
+        
+        // 初始化表格
+        function initTable() {
+            const table = document.getElementById('input-table');
+            
+            for (let i = 0; i < featureNames.length; i++) {
+                const row = table.insertRow();
+                
+                // 特征名称列（中文+英文）
+                const nameCell = row.insertCell();
+                nameCell.innerHTML = `
+                    <div class="feature-title">${featureNames[i].zh} (${featureNames[i].en})</div>
+                    <div class="feature-description">${featureNames[i].desc}</div>
+                `;
+                
+                // 数据范围列
+                const rangeCell = row.insertCell();
+                rangeCell.textContent = dataRanges[i];
+                
+                // 输入列
+                const inputCell = row.insertCell();
+                
+                // 特殊处理教育水平（educl）特征
+                if (featureNames[i].en === 'educl') {
+                    // 创建教育水平下拉选择框（三个选项）
+                    const select = document.createElement('select');
+                    select.dataset.index = i;
+                    
+                    // 添加选项
+                    const option1 = document.createElement('option');
+                    option1.value = '1';
+                    option1.textContent = '小学';
+                    select.appendChild(option1);
+                    
+                    const option2 = document.createElement('option');
+                    option2.value = '2';
+                    option2.textContent = '初中-高中';
+                    select.appendChild(option2);
+                    
+                    const option3 = document.createElement('option');
+                    option3.value = '3';
+                    option3.textContent = '高中以上';
+                    select.appendChild(option3);
+                    
+                    // 设置默认值
+                    select.value = exampleData[i];
+                    inputCell.appendChild(select);
+                } 
+                // 特殊处理性别（gender）特征
+                else if (featureNames[i].en === 'gender') {
+                    // 创建性别下拉选择框（女/男）
+                    const select = document.createElement('select');
+                    select.dataset.index = i;
+                    
+                    // 添加选项
+                    const option0 = document.createElement('option');
+                    option0.value = '0';
+                    option0.textContent = '女';
+                    select.appendChild(option0);
+                    
+                    const option1 = document.createElement('option');
+                    option1.value = '1';
+                    option1.textContent = '男';
+                    select.appendChild(option1);
+                    
+                    // 设置默认值
+                    select.value = exampleData[i];
+                    inputCell.appendChild(select);
+                } 
+                // 其他二值特征
+                else if (featureNames[i].binary) {
+                    // 创建下拉选择框
+                    const select = document.createElement('select');
+                    select.dataset.index = i;
+                    
+                    // 添加选项
+                    const option0 = document.createElement('option');
+                    option0.value = '0';
+                    option0.textContent = '否';
+                    select.appendChild(option0);
+                    
+                    const option1 = document.createElement('option');
+                    option1.value = '1';
+                    option1.textContent = '是';
+                    select.appendChild(option1);
+                    
+                    // 设置默认值
+                    select.value = exampleData[i];
+                    inputCell.appendChild(select);
+                } 
+                // 数值型特征
+                else {
+                    // 创建输入框
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = exampleData[i];
+                    input.dataset.index = i;
+                    inputCell.appendChild(input);
+                }
+            }
+        }
+        
+        // 新增函数：切换到英文页面
+        function switchLanguage() {
+            window.location.href = "index2.html";
+        }
+        
+        // 提交数据到后端
+        function submitData(modelType) {
+            // 禁用按钮防止重复提交
+            document.getElementById('diagnosis-btn').disabled = true;
+            document.getElementById('prognosis-btn').disabled = true;
+            
+            // 收集所有输入值
+            const inputs = document.querySelectorAll('#input-table input, #input-table select');
+            const values = [];
+            
+            inputs.forEach(input => {
+                values.push(input.value);
+            });
+            
+            // 显示加载状态
+            const resultDiv = document.getElementById('result');
+            const diagnosisEl = document.getElementById('diagnosis-result');
+            const prognosisEl = document.getElementById('prognosis-result');
+            const shapPlot = document.getElementById('shap-plot');
+            
+            diagnosisEl.style.display = modelType === 'diagnosis' ? 'block' : 'none';
+            prognosisEl.style.display = modelType === 'prognosis' ? 'block' : 'none';
+            shapPlot.style.display = 'none';
+            
+            // 清除之前的内容
+            diagnosisEl.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            prognosisEl.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            
+            // 显示结果区域
+            resultDiv.style.display = 'block';
+            
+            // 发送数据到后端，同时传递模型类型
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `data=${encodeURIComponent(values.join(','))}&model_type=${modelType}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                // 启用按钮
+                document.getElementById('diagnosis-btn').disabled = false;
+                document.getElementById('prognosis-btn').disabled = false;
+                
+                if (data.error) {
+                    if (modelType === 'diagnosis') {
+                        diagnosisEl.innerHTML = `<div class="result-item"><span class="warning">错误: ${data.error}</span></div>`;
+                    } else {
+                        prognosisEl.innerHTML = `<div class="result-item"><span class="warning">错误: ${data.error}</span></div>`;
+                    }
+                } else {
+                    if (modelType === 'diagnosis') {
+                        const riskClass = data.diagnosis_label === "高" ? "diagnosis-high" : "diagnosis-low";
+                        diagnosisEl.innerHTML = `
+                            <div class="result-item">
+                                <span class="result-label">诊断风险:</span>
+                                <span class="result-value ${riskClass}">${data.diagnosis_label}</span>
+                                <span>(${data.diagnosis_score})</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">模型分数:</span>
+                                <span>${data.diagnosis_score}</span>
+                            </div>
+                            <div class="threshold-info">
+                                <strong>诊断阈值: 0.53</strong> - 高于此值表示高风险，低于此值表示低风险
+                            </div>
+                        `;
+                        
+                        // 显示结果图片
+                        if (data.result_image) {
+                            const imgEl = document.createElement('img');
+                            imgEl.className = 'result-image';
+                            imgEl.src = 'data:image/png;base64,' + data.result_image;
+                            imgEl.alt = '诊断结果图片';
+                            diagnosisEl.appendChild(imgEl);
+                        }
+                        
+                        prognosisEl.style.display = 'none';
+                    } else {
+                        const progClass = data.prognosis_label === "较差" ? "prognosis-poor" : "prognosis-good";
+                        prognosisEl.innerHTML = `
+                            <div class="result-item">
+                                <span class="result-label">预后状态:</span>
+                                <span class="result-value ${progClass}">${data.prognosis_label}</span>
+                                <span>(${data.prognosis_score})</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">模型分数:</span>
+                                <span>${data.prognosis_score}</span>
+                            </div>
+                            <div class="threshold-info">
+                                <strong>预后阈值: -12.03</strong> - 高于此值表示预后较差，低于此值表示预后较好
+                            </div>
+                        `;
+                        
+                        // 显示结果图片
+                        if (data.result_image) {
+                            const imgEl = document.createElement('img');
+                            imgEl.className = 'result-image';
+                            imgEl.src = 'data:image/png;base64,' + data.result_image;
+                            imgEl.alt = '预后结果图片';
+                            prognosisEl.appendChild(imgEl);
+                        }
+                        
+                        diagnosisEl.style.display = 'none';
+                    }
+                    
+                    // 显示SHAP图
+                    if (data.shap_image) {
+                        const shapImg = document.getElementById('shap-image');
+                        shapImg.src = 'data:image/png;base64,' + data.shap_image;
+                        shapPlot.style.display = 'block';
+                    }
+                }
+                
+                // 滚动到结果区域
+                resultDiv.scrollIntoView({ behavior: 'smooth' });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // 启用按钮
+                document.getElementById('diagnosis-btn').disabled = false;
+                document.getElementById('prognosis-btn').disabled = false;
+                
+                const errorMsg = error.message || "请求失败";
+                if (modelType === 'diagnosis') {
+                    diagnosisEl.innerHTML = `<div class="result-item"><span class="warning">请求失败: ${errorMsg}</span></div>`;
+                } else {
+                    prognosisEl.innerHTML = `<div class="result-item"><span class="warning">请求失败: ${errorMsg}</span></div>`;
+                }
+            });
+        }
+        
+        // 页面加载完成后初始化表格
+        window.onload = initTable;
+    </script>
+</body>
+</html>
