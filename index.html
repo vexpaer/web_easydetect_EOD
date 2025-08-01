@@ -528,7 +528,7 @@
             {en: 'smokev', zh: '曾经吸烟', desc: '0=否, 1=是', binary: true},
             {en: 'smoken', zh: '现在吸烟', desc: '0=否, 1=是', binary: true},
             {en: 'drinkev', zh: '饮酒状况', desc: '0=不饮酒, 1=饮酒', binary: true},
-            {en: 'bmi', zh: '身体质量指数', desc: '体重(kg)/身高(m)²', binary: false},
+            {en: 'bmi', zh: '身体质量指数', desc: '自动计算：体重(kg)/身高(m)²', binary: false, autoCalculated: true},
             {en: 'family_size', zh: '家庭人数', desc: '共同居住的家庭成员数量', binary: false},
             {en: 'work', zh: '工作情况', desc: '0=无工作, 1=有工作', binary: true},
             {en: 'hearaid', zh: '使用助听器', desc: '0=否, 1=是', binary: true},
@@ -544,7 +544,7 @@
         const dataRanges = [
             '<65', '1,2,3', '0,1', '0,1', '0,1', '0,1', '0,1',
             '0,1', '0,1', '0,1', '0,1', '正数', '正数', 
-            '0,1', '0,1', '0,1', '正数', '正整数', 
+            '0,1', '0,1', '0,1', '自动计算', '正整数', 
             '0,1', '0,1', '0,1', '正数', '正数', '0-7整数', '0,1', '0,1'
         ];
         
@@ -647,13 +647,57 @@
                 } 
                 // 数值型特征
                 else {
-                    // 创建输入框
-                    const input = document.createElement('input');
-                    input.type = 'text';
-                    input.value = exampleData[i];
-                    input.dataset.index = i;
-                    inputCell.appendChild(input);
+                    // 对于BMI特征，创建只读输入框
+                    if (featureNames[i].autoCalculated) {
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.value = exampleData[i];
+                        input.dataset.index = i;
+                        input.readOnly = true;
+                        input.style.backgroundColor = '#f8f9fa';
+                        input.style.cursor = 'not-allowed';
+                        inputCell.appendChild(input);
+                    } else {
+                        // 创建普通输入框
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.value = exampleData[i];
+                        input.dataset.index = i;
+                        
+                        // 为身高和体重添加事件监听器以自动计算BMI
+                        if (featureNames[i].en === 'height' || featureNames[i].en === 'weight') {
+                            input.addEventListener('input', calculateBMI);
+                        }
+                        
+                        inputCell.appendChild(input);
+                    }
                 }
+            }
+        }
+        
+        // 自动计算BMI的函数
+        function calculateBMI() {
+            const inputs = document.querySelectorAll('#input-table input, #input-table select');
+            let height = null;
+            let weight = null;
+            let bmiInput = null;
+            
+            // 找到身高、体重和BMI输入框
+            inputs.forEach(input => {
+                const index = parseInt(input.dataset.index);
+                if (featureNames[index].en === 'height') {
+                    height = parseFloat(input.value);
+                } else if (featureNames[index].en === 'weight') {
+                    weight = parseFloat(input.value);
+                } else if (featureNames[index].en === 'bmi') {
+                    bmiInput = input;
+                }
+            });
+            
+            // 计算BMI并更新显示
+            if (height > 0 && weight > 0 && bmiInput) {
+                const bmi = weight / (height * height);
+                bmiInput.value = bmi.toFixed(2);
             }
         }
         
@@ -667,6 +711,9 @@
             // 禁用按钮防止重复提交
             document.getElementById('diagnosis-btn').disabled = true;
             document.getElementById('prognosis-btn').disabled = true;
+            
+            // 在提交前确保BMI已正确计算
+            calculateBMI();
             
             // 收集所有输入值
             const inputs = document.querySelectorAll('#input-table input, #input-table select');
@@ -797,7 +844,10 @@
         }
         
         // 页面加载完成后初始化表格
-        window.onload = initTable;
+        window.onload = function() {
+            initTable();
+            calculateBMI(); // 初始化时计算BMI
+        };
     </script>
 </body>
 </html>
