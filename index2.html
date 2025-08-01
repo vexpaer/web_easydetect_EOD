@@ -528,7 +528,7 @@
             {en: 'smokev', desc: '0=Never, 1=Past smoker', binary: true},
             {en: 'smoken', desc: '0=No, 1=Current smoker', binary: true},
             {en: 'drinkev', desc: '0=No, 1=Drinks alcohol', binary: true},
-            {en: 'bmi', desc: 'Body Mass Index: weight(kg)/height(m)²', binary: false},
+            {en: 'bmi', desc: 'Auto-calculated: weight(kg)/height(m)²', binary: false, autoCalculated: true},
             {en: 'family_size', desc: 'Number of family members living together', binary: false},
             {en: 'work', desc: '0=Unemployed, 1=Employed', binary: true},
             {en: 'hearaid', desc: '0=No, 1=Uses hearing aid', binary: true},
@@ -544,7 +544,7 @@
         const dataRanges = [
             '<65', '1,2,3', '0,1', '0,1', '0,1', '0,1', '0,1',
             '0,1', '0,1', '0,1', '0,1', 'Positive number', 'Positive number', 
-            '0,1', '0,1', '0,1', 'Positive number', 'Positive integer', 
+            '0,1', '0,1', '0,1', 'Auto-calculated', 'Positive integer', 
             '0,1', '0,1', '0,1', 'Positive number', 'Positive number', 'Integer 0-7', '0,1', '0,1'
         ];
         
@@ -647,13 +647,57 @@
                 } 
                 // Numeric features
                 else {
-                    // Create input field
-                    const input = document.createElement('input');
-                    input.type = 'text';
-                    input.value = exampleData[i];
-                    input.dataset.index = i;
-                    inputCell.appendChild(input);
+                    // For BMI feature, create read-only input
+                    if (featureNames[i].autoCalculated) {
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.value = exampleData[i];
+                        input.dataset.index = i;
+                        input.readOnly = true;
+                        input.style.backgroundColor = '#f8f9fa';
+                        input.style.cursor = 'not-allowed';
+                        inputCell.appendChild(input);
+                    } else {
+                        // Create regular input field
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.value = exampleData[i];
+                        input.dataset.index = i;
+                        
+                        // Add event listeners for height and weight to auto-calculate BMI
+                        if (featureNames[i].en === 'height' || featureNames[i].en === 'weight') {
+                            input.addEventListener('input', calculateBMI);
+                        }
+                        
+                        inputCell.appendChild(input);
+                    }
                 }
+            }
+        }
+        
+        // Auto-calculate BMI function
+        function calculateBMI() {
+            const inputs = document.querySelectorAll('#input-table input, #input-table select');
+            let height = null;
+            let weight = null;
+            let bmiInput = null;
+            
+            // Find height, weight and BMI input fields
+            inputs.forEach(input => {
+                const index = parseInt(input.dataset.index);
+                if (featureNames[index].en === 'height') {
+                    height = parseFloat(input.value);
+                } else if (featureNames[index].en === 'weight') {
+                    weight = parseFloat(input.value);
+                } else if (featureNames[index].en === 'bmi') {
+                    bmiInput = input;
+                }
+            });
+            
+            // Calculate BMI and update display
+            if (height > 0 && weight > 0 && bmiInput) {
+                const bmi = weight / (height * height);
+                bmiInput.value = bmi.toFixed(2);
             }
         }
         
@@ -667,6 +711,9 @@
             // Disable buttons to prevent duplicate submissions
             document.getElementById('diagnosis-btn').disabled = true;
             document.getElementById('prognosis-btn').disabled = true;
+            
+            // Ensure BMI is correctly calculated before submission
+            calculateBMI();
             
             // Collect all input values
             const inputs = document.querySelectorAll('#input-table input, #input-table select');
@@ -801,7 +848,10 @@
         }
         
         // Initialize table when page loads
-        window.onload = initTable;
+        window.onload = function() {
+            initTable();
+            calculateBMI(); // Calculate BMI on initialization
+        };
     </script>
 </body>
 </html>
